@@ -1,0 +1,51 @@
+{
+  "name": "@clipy/sdk",
+  "version": "0.3.0",
+  "description": "Official TypeScript SDK for the Clipy REST API and webhooks: read recordings, transcripts, summaries and key moments, and verify webhook deliveries.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "clipy",
+    "screen-recording",
+    "transcript",
+    "webhooks",
+    "sdk",
+    "ai-agent"
+  ],
+  "homepage": "https://clipy.online/docs/api#sdks",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "tsc -p tsconfig.json && node --test test/*.test.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clipy-recorder/clipy-sdk-typescript.git"
+  },
+  "bugs": {
+    "url": "https://github.com/clipy-recorder/clipy-sdk-typescript/issues"
+  }
+}

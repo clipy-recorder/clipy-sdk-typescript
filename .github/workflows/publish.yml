@@ -1,0 +1,46 @@
+name: Publish
+
+# Publishes @clipy/sdk to npm when a tag matching `v*` is pushed, through npm
+# trusted publishing (GitHub OIDC), so there is no npm token to expire. On
+# npmjs.com the package lists this repo and publish.yml as its trusted publisher.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          # No registry-url: with one, setup-node sets a placeholder NODE_AUTH_TOKEN
+          # and npm sends that instead of using OIDC.
+      - name: Check the tag matches the package version
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          SDK_VERSION="$(sed -n "s/^export const SDK_VERSION = '\(.*\)';/\1/p" src/client.ts)"
+          if [ "${GITHUB_REF_NAME}" != "v${VERSION}" ] || [ "${SDK_VERSION}" != "${VERSION}" ]; then
+            echo "Tag ${GITHUB_REF_NAME}, package.json ${VERSION} and SDK_VERSION ${SDK_VERSION} must agree." >&2
+            exit 1
+          fi
+      - run: npm ci
+      - run: npm test
+      # Trusted publishing needs npm 11.5.1 or later.
+      - run: npm install -g npm@11
+      # Skips a version npm already has, so a re-run is safe.
+      - name: Publish to npm
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if npm view "@clipy/sdk@${VERSION}" version >/dev/null 2>&1; then
+            echo "@clipy/sdk@${VERSION} is already on npm; skipping npm publish."
+          else
+            npm publish --access public
+          fi
